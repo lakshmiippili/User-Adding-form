@@ -1,14 +1,69 @@
-<!DOCTYPE html>
 <html>
     <body>
-        <h1>Appointment Booking App</h1>
-        <form id='myform'>
-            <input type="text" id="name" placeholder='name'required/>
-            <input type="text" id="email" placeholder='email'required/>
-            <input type="submit" id="submit" value="submit"/>
+        <form onsubmit="saveToLocalStorage(event)">
+            <label> Name</label>
+            <input type="text" name="uname"  required/>
+            <label> EmailId</label>
+            <input type="email" name="emailId"  required/>
+            <button> Submit </button>
         </form>
-        <ul id="users"></ul>
-        <script src="booking.js"></script>
-    </body>
+        <ul id='listOfitems'></ul>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.2.0/axios.min.js"></script>
+        <script>
+            function saveToLocalStorage(event) {
+                event.preventDefault();
+                const name = event.target.uname.value;
+                const email = event.target.emailId.value;
+                
+                const obj = {
+                    name,
+                    email
+                }
+                axios.post("https://crudcrud.com/api/fd353b1b04d447cea7be52d41cc1d5e4/appointmentData",obj)
+                .then((res)=>{console.log(res)})
+                .catch((err)=>{console.log(err)})
+                // localStorage.setItem(obj.email, JSON.stringify(obj))
+                // showListofRegisteredUser(obj)
+            }
 
+            window.addEventListener('DOMContentLoaded', (event) => {
+                axios.get("https://crudcrud.com/api/fd353b1b04d447cea7be52d41cc1d5e4/appointmentData")
+                .then((response)=>{
+                    console.log(response)
+                    for(var i=0; i< response.data.length ; i++){
+                        showListofRegisteredUser(response.data[i])
+                    }
+                })
+                .catch((err)=>{console.log(err)})
+                
+                // Object.keys(localStorage).forEach(key => {
+                //     const user = JSON.parse(localStorage.getItem(key))
+                //     showListofRegisteredUser(user)
+                // })
+            })
+
+            function showListofRegisteredUser(user){
+                const parentNode = document.getElementById('listOfitems');
+                const createNewUserHtml = `<li id='${user.email}'>${user.name} - ${user.email} 
+                                                <button onclick=deleteUser('${user.email}')>Delete</button>
+                                            </li>
+                                            `
+                
+                parentNode.innerHTML +=  createNewUserHtml;
+            }
+
+            function deleteUser(email) {
+                localStorage.removeItem(email)
+                removeItemFromScreen(email)
+            }
+
+            function removeItemFromScreen(email){
+                const parentNode = document.getElementById('listOfitems');
+                const elem = document.getElementById(email)
+                parentNode.removeChild(elem);
+            }
+        </script>
+
+
+    </body>
 </html>
